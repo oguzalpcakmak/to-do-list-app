@@ -12,6 +12,7 @@ import {
 type TodoItem = {
   id: number;
   title: string;
+  completed: boolean;
 };
 
 const styles = StyleSheet.create({
@@ -32,8 +33,31 @@ const styles = StyleSheet.create({
   todoText: {
     flex: 1,
   },
+  completedText: {
+    textDecorationLine: "line-through",
+    color: "gray",
+  },
   deleteButton: {
     color: "red",
+  },
+  editButton: {
+    color: "blue",
+    marginLeft: 8,
+  },
+  completeButton: {
+    color: "green",
+    marginLeft: 8,
+  },
+  fetchButton: {
+    backgroundColor: "green",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 4,
+    alignSelf: "flex-start",
+    marginTop: 8,
+  },
+  fetchButtonText: {
+    color: "white",
   },
   addButton: {
     backgroundColor: "blue",
@@ -55,6 +79,8 @@ const styles = StyleSheet.create({
 export default function App() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [newTodo, setNewTodo] = useState("");
+  const [editTodoId, setEditTodoId] = useState<number | null>(null);
+  const [editTodoText, setEditTodoText] = useState("");
 
   useEffect(() => {
     fetchTodos();
@@ -62,7 +88,7 @@ export default function App() {
 
   const fetchTodos = async () => {
     try {
-      const response = await fetch("<your-db-adress-here>/todos");
+      const response = await fetch("http://192.168.0.102:3000/todos");
       const data = await response.json();
       setTodos(data);
     } catch (error) {
@@ -72,12 +98,13 @@ export default function App() {
 
   const addTodo = async () => {
     try {
-      const response = await fetch("<your-db-adress-here>/todos", {
+      fetchTodos();
+      const response = await fetch("http://192.168.0.102:3000/todos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title: newTodo }),
+        body: JSON.stringify({ title: newTodo, completed: false }),
       });
       const newTodoItem = await response.json();
       setTodos((prevTodos) => [...prevTodos, newTodoItem]);
@@ -89,7 +116,8 @@ export default function App() {
 
   const deleteTodo = async (id: number) => {
     try {
-      await fetch(`<your-db-adress-here>/todos/${id}`, {
+      fetchTodos();
+      await fetch(`http://192.168.0.102:3000/todos/${id}`, {
         method: "DELETE",
       });
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
@@ -98,14 +126,101 @@ export default function App() {
     }
   };
 
-  const renderItem = ({ item }: { item: TodoItem }) => (
-    <View style={styles.todoItem}>
-      <Text style={styles.todoText}>{item.title}</Text>
-      <TouchableOpacity onPress={() => deleteTodo(item.id)}>
-        <Text style={styles.deleteButton}>Delete</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  const toggleComplete = async (id: number, completed: boolean) => {
+    try {
+      fetchTodos();
+      await fetch(`http://192.168.0.102:3000/todos/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ completed: !completed }),
+      });
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) =>
+          todo.id === id ? { ...todo, completed: !completed } : todo
+        )
+      );
+    } catch (error) {
+      console.error("Error updating todo:", error);
+    }
+  };
+
+  const startEditing = (id: number, title: string) => {
+    setEditTodoId(id);
+    setEditTodoText(title);
+  };
+
+  const cancelEditing = () => {
+    setEditTodoId(null);
+    setEditTodoText("");
+  };
+
+  const saveEdit = async () => {
+    try {
+      fetchTodos();
+      const response = await fetch(
+        `http://192.168.0.102:3000/todos/${editTodoId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title: editTodoText }),
+        }
+      );
+      const updatedTodo = await response.json();
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) => (todo.id === editTodoId ? updatedTodo : todo))
+      );
+      setEditTodoId(null);
+      setEditTodoText("");
+    } catch (error) {
+      console.error("Error updating todo:", error);
+    }
+  };
+
+  const renderItem = ({ item }: { item: TodoItem }) => {
+    if (editTodoId === item.id) {
+      return (
+        <View style={styles.todoItem}>
+          <TextInput
+            value={editTodoText}
+            onChangeText={setEditTodoText}
+            style={styles.todoText}
+          />
+          <TouchableOpacity onPress={saveEdit}>
+            <Text style={styles.editButton}>Save</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={cancelEditing}>
+            <Text style={styles.deleteButton}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.todoItem}>
+        <TouchableOpacity
+          onPress={() => toggleComplete(item.id, item.completed)}
+        >
+          <Text
+            style={[styles.todoText, item.completed && styles.completedText]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {item.title}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => startEditing(item.id, item.title)}>
+          <Text style={styles.editButton}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => deleteTodo(item.id)}>
+          <Text style={styles.deleteButton}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -130,6 +245,10 @@ export default function App() {
           <Text style={styles.addButtonText}>Add</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity onPress={fetchTodos} style={styles.fetchButton}>
+        <Text style={styles.fetchButtonText}>Fetch Todos</Text>
+      </TouchableOpacity>
       <StatusBar style="auto" />
     </View>
   );
