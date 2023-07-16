@@ -25,5 +25,5 @@ json-server --watch db.json
 
 If you want to access it from the other devices in your local network:
 ```
-json-server --watch db.json -H 192.168.0.XXX (XXX can be 100, 101, etc.)
+json-server --watch db.json -H 192.168.0.XXX (XXX can be 100, 101, etc., for windows: cmd->ipconfig->ipv4 address)
 ```
