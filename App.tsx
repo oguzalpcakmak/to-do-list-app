@@ -31,7 +31,7 @@ export default function App() {
 
   const fetchTodos = async () => {
     try {
-      const response = await fetch("http://192.168.0.102:3000/todos");
+      const response = await fetch("<your-db-adress-here>/todos");
       const data = await response.json();
       setTodos(data);
     } catch (error) {
@@ -42,7 +42,7 @@ export default function App() {
   const addTodo = async () => {
     try {
       fetchTodos();
-      const response = await fetch("http://192.168.0.102:3000/todos", {
+      const response = await fetch("<your-db-adress-here>/todos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +60,7 @@ export default function App() {
   const deleteTodo = async (id: number) => {
     try {
       fetchTodos();
-      await fetch(`http://192.168.0.102:3000/todos/${id}`, {
+      await fetch(`<your-db-adress-here>/todos/${id}`, {
         method: "DELETE",
       });
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
@@ -72,7 +72,7 @@ export default function App() {
   const toggleComplete = async (id: number, completed: boolean) => {
     try {
       fetchTodos();
-      await fetch(`http://192.168.0.102:3000/todos/${id}`, {
+      await fetch(`<your-db-adress-here>/todos/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +103,7 @@ export default function App() {
     try {
       fetchTodos();
       const response = await fetch(
-        `http://192.168.0.102:3000/todos/${editTodoId}`,
+        `<your-db-adress-here>/todos/${editTodoId}`,
         {
           method: "PATCH",
           headers: {
