@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "to-do-list-app",
-    "slug": "to-do-list-app",
+    "name": "to-do-list-app-with-tailwind",
+    "slug": "to-do-list-app-with-tailwind",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

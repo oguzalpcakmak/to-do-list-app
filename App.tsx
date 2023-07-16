@@ -6,75 +6,18 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  StyleSheet,
 } from "react-native";
+import { NativeWindStyleSheet } from "nativewind";
+
+NativeWindStyleSheet.setOutput({
+  default: "native",
+});
 
 type TodoItem = {
   id: number;
   title: string;
   completed: boolean;
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 64,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  todoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 8,
-  },
-  todoText: {
-    flex: 1,
-  },
-  completedText: {
-    textDecorationLine: "line-through",
-    color: "gray",
-  },
-  deleteButton: {
-    color: "red",
-  },
-  editButton: {
-    color: "blue",
-    marginLeft: 8,
-  },
-  completeButton: {
-    color: "green",
-    marginLeft: 8,
-  },
-  fetchButton: {
-    backgroundColor: "green",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 4,
-    alignSelf: "flex-start",
-    marginTop: 8,
-  },
-  fetchButtonText: {
-    color: "white",
-  },
-  addButton: {
-    backgroundColor: "blue",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginLeft: 8,
-    borderRadius: 4,
-  },
-  addButtonText: {
-    color: "white",
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    padding: 8,
-  },
-});
 
 export default function App() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
@@ -183,29 +126,31 @@ export default function App() {
   const renderItem = ({ item }: { item: TodoItem }) => {
     if (editTodoId === item.id) {
       return (
-        <View style={styles.todoItem}>
+        <View className="flex-row items-center p-2">
           <TextInput
             value={editTodoText}
             onChangeText={setEditTodoText}
-            style={styles.todoText}
+            className="flex-1 border p-2"
           />
           <TouchableOpacity onPress={saveEdit}>
-            <Text style={styles.editButton}>Save</Text>
+            <Text className="text-blue-500 ml-2">Save</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={cancelEditing}>
-            <Text style={styles.deleteButton}>Cancel</Text>
+            <Text className="text-red-500 ml-2">Cancel</Text>
           </TouchableOpacity>
         </View>
       );
     }
 
     return (
-      <View style={styles.todoItem}>
+      <View className="flex-row items-center p-2">
         <TouchableOpacity
           onPress={() => toggleComplete(item.id, item.completed)}
         >
           <Text
-            style={[styles.todoText, item.completed && styles.completedText]}
+            className={`flex-1 ${
+              item.completed ? "line-through text-gray-500" : ""
+            }`}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
@@ -213,41 +158,42 @@ export default function App() {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => startEditing(item.id, item.title)}>
-          <Text style={styles.editButton}>Edit</Text>
+          <Text className="text-blue-500 ml-2">Edit</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => deleteTodo(item.id)}>
-          <Text style={styles.deleteButton}>Delete</Text>
+          <Text className="text-red-500 ml-2">Delete</Text>
         </TouchableOpacity>
       </View>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Todo App</Text>
+    <View className="p-4">
+      <Text className="text-2xl font-bold mb-4">Todo App</Text>
 
       <FlatList
         data={todos}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ flexGrow: 1 }}
-        style={{ marginBottom: 8 }}
+        className="mb-2 grow"
       />
 
-      <View style={{ flexDirection: "row" }}>
+      <View className="flex-row mb-2">
         <TextInput
           value={newTodo}
           onChangeText={setNewTodo}
           placeholder="Enter a new todo"
-          style={styles.input}
+          className="flex-1 border p-2"
         />
-        <TouchableOpacity onPress={addTodo} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
+        <TouchableOpacity onPress={addTodo}>
+          <Text className="bg-blue-500 text-white px-4 py-2 rounded">Add</Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity onPress={fetchTodos} style={styles.fetchButton}>
-        <Text style={styles.fetchButtonText}>Fetch Todos</Text>
+      <TouchableOpacity onPress={fetchTodos}>
+        <Text className="bg-green-500 text-white px-4 py-2 rounded mb-2">
+          Fetch Todos
+        </Text>
       </TouchableOpacity>
       <StatusBar style="auto" />
     </View>
