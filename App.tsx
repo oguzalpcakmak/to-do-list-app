@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   todoText: {
     flex: 1,
-    color: "white",
+    color: "black",
     fontFamily: "arial",
   },
   deleteButton: {
