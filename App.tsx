@@ -13,6 +13,7 @@ type TodoItem = {
   id: number;
   title: string;
   completed: boolean;
+  date: Date;
 };
 
 const styles = StyleSheet.create({
@@ -35,6 +36,10 @@ const styles = StyleSheet.create({
   },
   completedText: {
     textDecorationLine: "line-through",
+    color: "gray",
+  },
+  todoDate: {
+    marginLeft: 8,
     color: "gray",
   },
   deleteButton: {
@@ -88,7 +93,7 @@ export default function App() {
 
   const fetchTodos = async () => {
     try {
-      const response = await fetch("<db-address>:3000/todos");
+      const response = await fetch("http://192.168.1.23:3000/todos");
       const data = await response.json();
       setTodos(data);
     } catch (error) {
@@ -99,12 +104,12 @@ export default function App() {
   const addTodo = async () => {
     try {
       fetchTodos();
-      const response = await fetch("<db-address>:3000/todos", {
+      const response = await fetch("http://192.168.1.23:3000/todos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title: newTodo, completed: false }),
+        body: JSON.stringify({ title: newTodo, completed: false, date: new Date() }),
       });
       const newTodoItem = await response.json();
       setTodos((prevTodos) => [...prevTodos, newTodoItem]);
@@ -117,7 +122,7 @@ export default function App() {
   const deleteTodo = async (id: number) => {
     try {
       fetchTodos();
-      await fetch(`<db-address>:3000/todos/${id}`, {
+      await fetch(`http://192.168.1.23:3000/todos/${id}`, {
         method: "DELETE",
       });
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
@@ -129,7 +134,7 @@ export default function App() {
   const toggleComplete = async (id: number, completed: boolean) => {
     try {
       fetchTodos();
-      await fetch(`<db-address>:3000/todos/${id}`, {
+      await fetch(`http://192.168.1.23:3000/todos/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -160,7 +165,7 @@ export default function App() {
     try {
       fetchTodos();
       const response = await fetch(
-        `<db-address>:3000/todos/${editTodoId}`,
+        `http://192.168.1.23:3000/todos/${editTodoId}`,
         {
           method: "PATCH",
           headers: {
@@ -205,12 +210,16 @@ export default function App() {
           onPress={() => toggleComplete(item.id, item.completed)}
         >
           <Text
-            style={[styles.todoText, item.completed && styles.completedText]}
+            style={[
+              styles.todoText,
+              item.completed && styles.completedText,
+            ]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {item.title}
           </Text>
+          <Text style={styles.todoDate}>{item.date.toLocaleString()}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => startEditing(item.id, item.title)}>
           <Text style={styles.editButton}>Edit</Text>
