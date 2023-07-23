@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 8,
     borderRadius: 10,
-    backgroundColor: "antiquewhite",
+    backgroundColor: "#D67E3C",
     marginBottom: 10,
     
   },
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   todoText: {
     flex: 1,
-    color: "black",
+    color: "white",
     fontFamily: "arial",
   },
   deleteButton: {
